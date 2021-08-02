@@ -1,0 +1,12 @@
+version: '3'
+
+services:
+  app:
+    build: 
+      context: .
+      dockerfile: dockerfiles/Dockerfile
+    restart: always
+    environment:
+      PORT: ${PORT}
+    ports:
+      - ${PORT}:${PORT}
