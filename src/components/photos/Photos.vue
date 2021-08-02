@@ -9,11 +9,13 @@
     <base-button
       @click="previousImages()"
       v-if="picIndex > 1"
+      :disabled="isLoading"
       style="margin: 5px; float: left"
       >&lt;</base-button
     >
     <base-button
       @click="nextImages()"
+      :disabled="isLoading"
       v-if="hasMore"
       style="margin: 5px; float: right"
       >&gt;</base-button
@@ -53,7 +55,13 @@ export default defineComponent({
       picIndex: 1,
       hasMore: false,
       key: 0,
+      loading: false,
     };
+  },
+  computed: {
+    isLoading() {
+      return (this as any).loading;
+    },
   },
   methods: {
     previousImages() {
@@ -65,6 +73,7 @@ export default defineComponent({
       this.getPictures();
     },
     async getPictures() {
+      this.loading = true;
       const apiTokenReq = await fetch(
         `http://interview.agileengine.com/images?page=${this.picIndex}`,
         {
@@ -75,6 +84,8 @@ export default defineComponent({
           },
         }
       );
+      this.loading = false;
+
       if (200 !== apiTokenReq.status) {
         return null;
       }
@@ -96,33 +107,6 @@ export default defineComponent({
         return null;
       }
       this.token = (await apiTokenReq.json()).token;
-    },
-    setSelectedTab(tab: string) {
-      this.selectedTab = tab;
-    },
-    addResource(title: string, description: string, link: string) {
-      const newResource = {
-        id: new Date().toISOString(),
-        title,
-        description,
-        link,
-      };
-      this.storedResources.unshift(newResource);
-      this.selectedTab = "stored-resources";
-    },
-    removeResource(id: string) {
-      const resourceIndex = this.storedResources.findIndex(
-        (res) => res.id === id
-      );
-      this.storedResources.splice(resourceIndex, 1);
-    },
-  },
-  computed: {
-    storedResButtonMode() {
-      return (this as any).selectedTab === "stored-resources" ? null : "flat";
-    },
-    addResButtonMode() {
-      return (this as any).selectedTab === "add-resource" ? null : "flat";
     },
   },
 });
